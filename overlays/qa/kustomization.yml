@@ -1,0 +1,9 @@
+## AUTO GENERATED
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - basic-pc-web
+  - basic-sp-web
+  - istio-ingressgateway
+  - pc-web
+  - sp-web

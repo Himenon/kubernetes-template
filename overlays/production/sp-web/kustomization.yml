@@ -1,0 +1,9 @@
+## AUTO GENERATED
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - response-compressor.yml
+  - rollout.yml
+  - service-primary.yml
+  - service-secondary.yml
+  - virtual-service.yml

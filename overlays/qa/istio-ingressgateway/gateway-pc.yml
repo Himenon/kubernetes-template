@@ -1,0 +1,18 @@
+## AUTO GENERATED
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: pc-example-com
+  namespace: demo
+spec:
+  selector:
+    app: istio-ingressgateway
+    app.kubernetes.io/name: istio-ingressgateway
+    app.kubernetes.io/part-of: istio
+  servers:
+    - port:
+        number: 30000
+        name: http
+        protocol: HTTP
+      hosts:
+        - pc.localhost.com

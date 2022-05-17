@@ -1,0 +1,128 @@
+## AUTO GENERATED
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: sp-web
+  namespace: demo
+  labels:
+    app: sp-web
+    app.kubernetes.io/name: sp-web
+    app.kubernetes.io/part-of: demo-microservice
+  annotations:
+    notifications.argoproj.io/subscribe.on-rollout-completed.slack: k8s-production
+    notifications.argoproj.io/subscribe.on-rollout-step-completed.slack: k8s-production
+    notifications.argoproj.io/subscribe.on-rollout-updated.slack: k8s-production
+    notifications.argoproj.io/subscribe.on-scaling-replica-set.slack: k8s-production
+spec:
+  replicas: 3
+  revisionHistoryLimit: 2
+  minReadySeconds: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sp-web
+      app.kubernetes.io/part-of: demo-microservice
+  template:
+    metadata:
+      labels:
+        app: sp-web
+        version: 1.0.6
+        app.kubernetes.io/name: sp-web
+        app.kubernetes.io/part-of: demo-microservice
+        app.kubernetes.io/version: 1.0.6
+      annotations:
+        ad.datadoghq.com/sp-web.logs: |-
+          [
+            {
+              "source": "nodejs",
+              "service": "your-prefix-sp-web",
+              "log_processing_rules": [
+                {
+                  "type": "include_at_match",
+                  "name": "log_level_filter",
+                  "pattern": "\"level\":\"(WARN|ERROR)\""
+                }
+              ]
+            }
+          ]
+    spec:
+      containers:
+        - name: sp-web
+          env:
+            - name: PORT
+              value: "80"
+          image: ghcr.io/himenon/http-echo:1.0.6
+          ports:
+            - containerPort: 80
+          livenessProbe:
+            failureThreshold: 3
+            timeoutSeconds: 3
+            initialDelaySeconds: 15
+            httpGet:
+              path: /status
+              port: 80
+          readinessProbe:
+            failureThreshold: 3
+            timeoutSeconds: 3
+            initialDelaySeconds: 15
+            httpGet:
+              path: /status
+              port: 80
+          resources:
+            limits:
+              cpu: "1"
+              memory: 1Gi
+            requests:
+              cpu: "0.1"
+              memory: 100Mi
+      imagePullSecrets:
+        - name: hub.docker.com
+      nodeSelector: {}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - sp-web
+  strategy:
+    canary:
+      trafficRouting:
+        istio:
+          virtualService:
+            name: sp-web
+            routes:
+              - http-sp-web-primary
+      maxSurge: 25%
+      stableService: sp-web-primary
+      canaryService: sp-web-secondary
+      dynamicStableScale: true
+      steps:
+        - setCanaryScale:
+            replicas: 3
+            matchTrafficWeight: true
+        - pause:
+            duration: 10
+        - setWeight: 25
+        - setCanaryScale:
+            replicas: 1
+            matchTrafficWeight: true
+        - pause:
+            duration: 10
+        - setWeight: 50
+        - setCanaryScale:
+            replicas: 2
+            matchTrafficWeight: true
+        - pause:
+            duration: 10
+        - setWeight: 75
+        - setCanaryScale:
+            replicas: 3
+            matchTrafficWeight: true
+        - pause:
+            duration: 10
+        - setWeight: 100

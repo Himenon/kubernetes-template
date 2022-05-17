@@ -1,0 +1,18 @@
+{
+  "production": {
+    "appVersion": "1.0.6",
+    "replicas": 3
+  },
+  "qa": {
+    "appVersion": "1.0.6",
+    "replicas": 3
+  },
+  "stage": {
+    "appVersion": "1.0.6",
+    "replicas": 3
+  },
+  "dev": {
+    "appVersion": "1.0.6",
+    "replicas": 3
+  }
+}
