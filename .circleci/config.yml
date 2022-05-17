@@ -1,0 +1,35 @@
+version: 2.1
+
+jobs:
+  manifest-build-and-test:
+    docker:
+      - image: cimg/node:16.14.2
+    steps:
+      - checkout
+      - run:
+          name: Setup Kustomize
+          command: |
+            curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | sudo bash
+            sudo cp /home/circleci/project/kustomize /usr/local/bin/kustomize
+      - restore_cache:
+          key: dependency-cache-{{ checksum "pnpm-lock.yaml" }}
+      - run:
+          name: Install
+          command: |
+            sudo npm i -g pnpm@7.1.0
+            pnpm install --frozen-lockfile
+      - save_cache:
+          key: dependency-cache-{{ checksum "pnpm-lock.yaml" }}
+          paths:
+            - node_modules
+      - run:
+          name: Test & Build
+          command: |
+            pnpm build
+            pnpm test
+
+workflows:
+  version: 2
+  build-and-test:
+    jobs:
+      - manifest-build-and-test

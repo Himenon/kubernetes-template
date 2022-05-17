@@ -1,0 +1,16 @@
+## AUTO GENERATED
+apiVersion: v1
+kind: Service
+metadata:
+  name: basic-sp-web
+  namespace: demo
+spec:
+  type: ClusterIP
+  selector:
+    app: basic-sp-web
+    app.kubernetes.io/name: basic-sp-web
+    app.kubernetes.io/part-of: demo-microservice
+  ports:
+    - name: http-basic-sp-web-svc
+      port: 80
+      targetPort: 80

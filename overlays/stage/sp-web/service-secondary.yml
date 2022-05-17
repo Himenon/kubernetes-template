@@ -1,0 +1,16 @@
+## AUTO GENERATED
+apiVersion: v1
+kind: Service
+metadata:
+  name: sp-web-secondary
+  namespace: demo
+spec:
+  type: ClusterIP
+  selector:
+    app: sp-web
+    app.kubernetes.io/name: sp-web
+    app.kubernetes.io/part-of: demo-microservice
+  ports:
+    - name: http-sp-web-svc
+      port: 80
+      targetPort: 80

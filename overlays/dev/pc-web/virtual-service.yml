@@ -1,0 +1,27 @@
+## AUTO GENERATED
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: pc-web
+  namespace: demo
+spec:
+  gateways:
+    - pc-example-com
+  hosts:
+    - "*"
+  http:
+    - name: http-pc-web-primary
+      match:
+        - uri:
+            exact: /
+      route:
+        - destination:
+            host: pc-web-primary.demo.svc.cluster.local
+            port:
+              number: 80
+          weight: 100
+        - destination:
+            host: pc-web-secondary.demo.svc.cluster.local
+            port:
+              number: 80
+          weight: 0

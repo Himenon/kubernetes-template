@@ -1,0 +1,60 @@
+## AUTO GENERATED
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: istio-ingressgateway
+  namespace: demo
+spec:
+  revision: 1-13-3
+  profile: demo
+  components:
+    ingressGateways:
+      - name: istio-ingressgateway
+        namespace: demo
+        enabled: true
+        label:
+          app: istio-ingressgateway
+          app.kubernetes.io/name: istio-ingressgateway
+          app.kubernetes.io/part-of: istio
+        k8s:
+          overlays: []
+          env:
+            - name: TZ
+              value: Asia/Tokyo
+          service:
+            type: NodePort
+            ports:
+              - name: http
+                port: 30000
+                nodePort: 30000
+                targetPort: 30000
+            externalTrafficPolicy: Cluster
+          resources:
+            limits:
+              cpu: 1200m
+              memory: 500M
+            requests:
+              cpu: 400m
+              memory: 500M
+          nodeSelector: {}
+          podAnnotations:
+            dependency.config-map.content-hash: ""
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+                - weight: 1
+                  podAffinityTerm:
+                    topologyKey: kubernetes.io/hostname
+                    labelSelector:
+                      matchExpressions:
+                        - key: app.kubernetes.io/name
+                          operator: In
+                          values:
+                            - istio-ingressgateway
+          hpaSpec:
+            minReplicas: 2
+            maxReplicas: 2
+  values:
+    global:
+      imagePullSecrets:
+        - hub.docker.com
